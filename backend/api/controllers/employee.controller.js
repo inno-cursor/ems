@@ -17,12 +17,13 @@ export const createEmployee = async (req, res) => {
 
 export const getAllEmployees = async (req, res) => {
   try {
-    const employee = await Employee.find({ isActive: true });
+    const employee = await Employee.find();
     res.json(employee);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch employees" });
   }
 };
+
 
 export const getEmployeeById = async (req, res) => {
   try {
