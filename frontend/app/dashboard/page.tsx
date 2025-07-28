@@ -46,7 +46,6 @@ interface Employee {
 interface DashboardStats {
   totalEmployees: number;
   newHires: number;
-  onLeave: number;
   departments: number;
 }
 
@@ -55,7 +54,6 @@ export default function Dashboard() {
   const [stats, setStats] = useState<DashboardStats>({
     totalEmployees: 0,
     newHires: 0,
-    onLeave: 0,
     departments: 0,
   });
   const [recentEmployees, setRecentEmployees] = useState<Employee[]>([]);
@@ -75,64 +73,44 @@ export default function Dashboard() {
     if (!token || !baseUrl) return;
 
     try {
-      // Fetch all employees
       const res = await axios.get(`${baseUrl}/api/employee`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
+      // API returns either { employees: [...] } or [...] directly
       const employees: Employee[] = res.data.employees || res.data;
 
-      // Calculate stats
-      const totalEmployees = employees.filter(
-        (emp) => emp.isActive && emp.employmentStatus === "Active"
-      ).length;
+      // Total number of employees regardless of isActive or status
+      const totalEmployees = employees.length;
 
-      // New hires this month
-      const currentMonth = new Date().getMonth();
-      const currentYear = new Date().getFullYear();
+      // New hires this month (based on joiningDate only)
+      const now = new Date();
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
+
       const newHires = employees.filter((emp) => {
+        if (!emp.joiningDate) return false;
         const joiningDate = new Date(emp.joiningDate);
         return (
           joiningDate.getMonth() === currentMonth &&
-          joiningDate.getFullYear() === currentYear &&
-          emp.isActive
+          joiningDate.getFullYear() === currentYear
         );
       }).length;
 
-      // On leave (assuming employmentStatus could be 'On Leave' or similar)
-      const onLeave = employees.filter(
-        (emp) =>
-          emp.employmentStatus === "On Leave" ||
-          emp.employmentStatus === "Leave" ||
-          emp.employmentStatus === "Temporary Leave"
-      ).length;
-
-      // Unique departments
+      // Unique departments (ignoring empty or null)
       const uniqueDepartments = [
-        ...new Set(
-          employees.filter((emp) => emp.isActive).map((emp) => emp.department)
-        ),
+        ...new Set(employees.map((emp) => emp.department).filter(Boolean)),
       ].length;
 
       setStats({
         totalEmployees,
         newHires,
-        onLeave,
         departments: uniqueDepartments,
       });
 
-      // Get recent employees (last 5 active employees by creation date)
-      const recent = employees
-        .filter((emp) => emp.isActive)
-        .sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )
-        .slice(0, 3);
-
-      setRecentEmployees(recent);
+      // Optionally, update recent employees here if needed
     } catch (error) {
       console.error("Failed to fetch employee stats:", error);
     } finally {
@@ -194,13 +172,6 @@ export default function Dashboard() {
       description: "This month",
       icon: UserPlus,
       color: "text-green-600",
-    },
-    {
-      title: "On Leave",
-      value: statsLoading ? "..." : stats.onLeave.toString(),
-      description: "Currently on leave",
-      icon: Clock,
-      color: "text-orange-600",
     },
     {
       title: "Departments",
