@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Users, Settings, LogOut, Home, UserPlus } from "lucide-react";
+import { Users, Settings, LogOut, Home, UserPlus, ReceiptText } from "lucide-react";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
@@ -112,6 +112,12 @@ export function Navbar() {
               <Button size="sm">
                 <UserPlus className="mr-2 h-4 w-4" />
                 Add Employee
+              </Button>
+            </Link>
+            <Link href="/payslip">
+              <Button size="sm">
+                <ReceiptText className="mr-2 h-4 w-4" />
+                Generate Payslip
               </Button>
             </Link>
             <DropdownMenu>

@@ -18,6 +18,7 @@ import {
   Clock,
   UserCheck,
   HandHelping,
+  ReceiptText,
 } from "lucide-react";
 import Link from "next/link";
 import { Navbar } from "@/components/navbar";
@@ -260,6 +261,12 @@ export default function Dashboard() {
                   </Button>
                 </Link>
               )}
+              <Link href="/payslip">
+                <Button className="w-full justify-start" variant="outline">
+                  <ReceiptText className="mr-2 h-4 w-4" />
+                  Generate Payslip
+                </Button>
+              </Link>
             </CardContent>
           </Card>
 
